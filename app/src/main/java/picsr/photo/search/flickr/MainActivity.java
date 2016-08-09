@@ -46,8 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     //alldatalist gets all data from gson, then it is split into two sets for two column view
     ArrayList<DataModel> allDataList;
-    ArrayList<DataModel> dataList1;
-    ArrayList<DataModel> dataList2;
 
     //varying url based on constant flickr api url
     String URL = Constants.URL;
@@ -68,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
         //initialized to avoid null pointer exception
         allDataList = new ArrayList<>();
-        dataList1 = new ArrayList<>();
-        dataList2 = new ArrayList<>();
 
         //views
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -120,8 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         //clear data
         allDataList.clear();
-        dataList1.clear();
-        dataList2.clear();
 
         //request data from flickr api using volley library
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, URL, new Response.Listener<JSONObject>() {
@@ -180,18 +174,10 @@ public class MainActivity extends AppCompatActivity {
 
                     Snackbar.make(rootView, "Found "+allDataList.size() +" results", Snackbar.LENGTH_SHORT).show();
 
-                    for (int i = 0; i < allDataList.size(); i++) {
-                        if (i % 2 == 0)
-                            dataList2.add(allDataList.get(i));
-                        else
-                            dataList1.add(allDataList.get(i));
-                    }
                 }else{
                     Snackbar.make(rootView, "Found no results", Snackbar.LENGTH_LONG).show();
                 }
 
-                Log.d("serData", "dataList1.size=" + dataList1.size());
-                Log.d("serData", "dataList2.size=" + dataList2.size());
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -204,8 +190,8 @@ public class MainActivity extends AppCompatActivity {
         public void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            if( !dataList1.isEmpty() && !dataList2.isEmpty() ) {
-                DataAdapter dataAdapter = new DataAdapter(getApplicationContext(), dataList1, dataList2);
+            if( !allDataList.isEmpty() ) {
+                DataAdapter dataAdapter = new DataAdapter(getApplicationContext(), allDataList);
                 recyclerView.setAdapter(dataAdapter);
             }
             hideLoading();

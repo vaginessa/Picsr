@@ -20,22 +20,19 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ContactViewHol
     //This is a recyclerview adapter to bind data to recyclerview
 
     Context context;
-    //current situation (flip functionality) requires two set of data for each row, each set of a column
-    public static ArrayList<DataModel> dataList1 = new ArrayList<>();
-    public static ArrayList<DataModel> dataList2 = new ArrayList<>();
+    public static ArrayList<DataModel> allDataList = new ArrayList<>();
     final String TAG = "MyLog " + this.getClass().getSimpleName();
 
-    public DataAdapter(Context context, ArrayList<DataModel> pdataList1, ArrayList<DataModel> pdataList2) {
+    public DataAdapter(Context context, ArrayList<DataModel> pdataList1) {
 
-        this.dataList1 = pdataList1;
-        this.dataList2 = pdataList2;
+        this.allDataList = pdataList1;
         this.context = context;
     }
 
 
     @Override
     public int getItemCount() {
-        return dataList1.size();
+        return allDataList.size();
     }
 
     @Override
@@ -89,27 +86,11 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ContactViewHol
 
         public void bindDataWithViewHolder(final int position) {
 
-            //This is for for first column picture to set picture side or back side based on state
-            if (dataList1.get(position).isFlipped()) {
-                textView1.setAlpha(1.0f);
-                imageView1.setAlpha(0.0f);
-            } else {
-                textView1.setAlpha(0.0f);
-                imageView1.setAlpha(1.0f);
-            }
 
-            //This is for for second column picture to set picture side or back side based on state
-            if (dataList2.get(position).isFlipped()) {
-                textView2.setAlpha(1.0f);
-                imageView2.setAlpha(0.0f);
-            } else {
-                textView2.setAlpha(0.0f);
-                imageView2.setAlpha(1.0f);
-            }
 
             //Glide library is used for faster loading of pictures, first half of quality is loaded then full quality is loaded, placeholder image is not shown for neatness, loading indicator is not supported in Glide hence it is not used.
             Glide.with(context)
-                    .load(dataList1.get(position).constructURL())
+                    .load(allDataList.get(position).constructURL())
                     .centerCrop()
                     .crossFade()
                     .thumbnail(0.5f)
@@ -117,34 +98,19 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ContactViewHol
 
             //sedond column image
             Glide.with(context)
-                    .load(dataList2.get(position).constructURL())
+                    .load(allDataList.get(position).constructURL())
                     .centerCrop()
                     .crossFade()
                     .thumbnail(0.5f)
                     .into(imageView2);
 
-            textView1.setText(dataList1.get(position).getTitle());
-            textView2.setText(dataList2.get(position).getTitle());
+
 
             imageView1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    //do the animation and set flip status
 
-                    if (dataList1.get(position).isFlipped()) {
-                        setRightOut.setTarget(textView1);
-                        setLeftIn.setTarget(imageView1);
-                        setRightOut.start();
-                        setLeftIn.start();
-                        dataList1.get(position).setFlipped(false);
-                    } else {
-                        setRightOut.setTarget(imageView1);
-                        setLeftIn.setTarget(textView1);
-                        setRightOut.start();
-                        setLeftIn.start();
-                        dataList1.get(position).setFlipped(true);
-                    }
 
                 }
             });
@@ -154,21 +120,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ContactViewHol
                 @Override
                 public void onClick(View v) {
 
-                    //do the animation and set flip status
-
-                    if (dataList2.get(position).isFlipped()) {
-                        setRightOut.setTarget(textView2);
-                        setLeftIn.setTarget(imageView2);
-                        setRightOut.start();
-                        setLeftIn.start();
-                        dataList2.get(position).setFlipped(false);
-                    } else {
-                        setRightOut.setTarget(imageView2);
-                        setLeftIn.setTarget(textView2);
-                        setRightOut.start();
-                        setLeftIn.start();
-                        dataList2.get(position).setFlipped(true);
-                    }
+                    
 
                 }
             });
