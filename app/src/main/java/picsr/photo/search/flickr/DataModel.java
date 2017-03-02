@@ -12,6 +12,7 @@ public class DataModel {
     private String server;
     private String farm;
     private String title;
+    private String constructedURL;
 
     public boolean isFlipped() {
         return flipped;
@@ -65,16 +66,20 @@ public class DataModel {
 
     public String constructURL() {
 
-        return "https://farm" +
-                farm +
-                ".staticflickr.com/" +
-                server +
-                "/" +
-                id +
-                "_" +
-                secret +
-                ".jpg";
+        if( constructedURL == null ) {
 
+            constructedURL =  "https://farm" +
+                    farm +
+                    ".staticflickr.com/" +
+                    server +
+                    "/" +
+                    id +
+                    "_" +
+                    secret +
+                    ".jpg";
+        }
+
+        return constructedURL;
     }
 
 }
