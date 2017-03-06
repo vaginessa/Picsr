@@ -11,4 +11,7 @@ public class Constants {
 
     public static final String URL = "https://api.flickr.com/services/rest?method=flickr.photos.search&api_key=" +FLICKR_API_KEY +"&text=keyword&format=json&nojsoncallback=1";
 
+    public static final String URL_RECENT_UPLOADS = "https://api.flickr.com/services/rest?method=flickr.photos.getRecent&api_key=" +FLICKR_API_KEY +"&format=json&nojsoncallback=1";
+
+
 }

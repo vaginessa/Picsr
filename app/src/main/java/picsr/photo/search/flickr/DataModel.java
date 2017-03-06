@@ -1,9 +1,11 @@
 package picsr.photo.search.flickr;
 
+import java.io.Serializable;
+
 /**
  * Created by ANDROID on 3/2/2016.
  */
-public class DataModel {
+public class DataModel implements Serializable {
 
     //POJO class (encapsulation) that holds data and processes data to construct pictures url
 

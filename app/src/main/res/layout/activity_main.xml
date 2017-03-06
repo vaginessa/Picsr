@@ -5,11 +5,10 @@
     android:layout_height="match_parent"
     tools:context="picsr.photo.search.flickr.MainActivity"
     android:id="@+id/relativeLayout"
-    android:background="#ddd"
     >
 
     <LinearLayout
-        android:id="@+id/infoPart"
+        android:id="@+id/infoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
@@ -64,5 +63,18 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvNoNetwork"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No Network"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#f20000"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        />
+
 
 </RelativeLayout>

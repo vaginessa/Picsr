@@ -80,7 +80,8 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ContactViewHol
                 public void onClick(View v) {
 
                     Intent intent = new Intent( context, ImageViewActivity.class );
-                    intent.putExtra( "data", allDataList.get(position).constructURL() );
+                    intent.putExtra( "picsList", allDataList );
+                    intent.putExtra( "position", position );
                     context.startActivity( intent );
 
                 }

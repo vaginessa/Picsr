@@ -1,32 +1,34 @@
 package picsr.photo.search.flickr;
 
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import java.util.ArrayList;
 
 public class ImageViewActivity extends AppCompatActivity {
 
-    TouchImageView ivFull;
+    final String TAG = this.getClass().getSimpleName();
+    ArrayList<DataModel> dataList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_view);
-        ivFull = (TouchImageView) findViewById(R.id.tivFull);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
 
         try {
 
-            String data = getIntent().getExtras().getString("data");
+            dataList = (ArrayList<DataModel>) getIntent().getSerializableExtra("dataList");
+            Log.d(TAG, "intent data dataList.size() = "+dataList.size() );
+            int position = getIntent().getExtras().getInt("position");
 
-            if (data != null && !data.isEmpty()) {
-                Glide.with(this)
-                        .load(data)
-                        .centerCrop()
-                        .crossFade()
-                        .thumbnail(0.5f)
-                        .into(ivFull);
+            if( dataList!=null && dataList.size()>0 ){
+                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this, dataList);
+                viewPager.setAdapter(viewPagerAdapter);
+                viewPager.setCurrentItem(position);
             }
 
         } catch (Exception ex) {

@@ -35,23 +35,22 @@ import picsr.photo.search.flickr.network.VolleySingleton;
 
 public class MainActivity extends AppCompatActivity {
 
-    ProgressBar progressBar;
-
-    //Latest recylcerview is used instead of list or gridview
-    RecyclerView recyclerView;
-    LinearLayoutManager layoutManager;
-    LinearLayout infoPart;
-    RelativeLayout rootView;
-
     final String TAG = "MyLog " + this.getClass().getSimpleName();
 
-    //alldatalist gets all data from gson, then it is split into two sets for two column view
-    ArrayList<DataModel> allDataList;
+    ProgressBar progressBar;
+    RecyclerView recyclerView;
+    LinearLayoutManager layoutManager;
+    LinearLayout infoView;
+    RelativeLayout rootView;
 
-    //varying url based on constant flickr api url
+
+    //dataList gets all data from gson, then it is split into two sets for two column view
+    ArrayList<DataModel> dataList;
+
+    //varying url based on constant flickr api url for searching
     String URL = Constants.URL;
 
-    private SearchView mSearchView;
+    private SearchView searchView;
     private MenuItem searchMenuItem;
     SearchView.OnQueryTextListener listener;
 
@@ -65,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
     //all things of this activity initialized here
     void init() {
 
-        //initialized to avoid null pointer exception
-        allDataList = new ArrayList<>();
+        //initialized to avoid null
+        dataList = new ArrayList<>();
 
         //views
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         //view shown on launch
-        infoPart = (LinearLayout) findViewById(R.id.infoPart);
+        infoView = (LinearLayout) findViewById(R.id.infoView);
 
         rootView = (RelativeLayout) findViewById(R.id.relativeLayout);
 
@@ -93,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
                     URL = Constants.URL.replace("keyword", finalQuery);
 
                     Log.d(TAG, "newURL =" + URL);
-                    requestData();
+                    showLoading();
+                    requestData(URL);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -107,18 +107,19 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         };
+
+        requestData(Constants.URL_RECENT_UPLOADS);
     }
 
 
-    void requestData() {
-
-        showLoading();
+    void requestData(String paramURL) {
 
         //clear data
-        allDataList.clear();
+        if (!dataList.isEmpty())
+            dataList.clear();
 
         //request data from flickr api using volley library
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, URL, null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, paramURL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
@@ -130,7 +131,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideLoading();
-                Log.d(TAG, "onErrorResponse= " + error.toString());
+                Log.d(TAG, "onErrorResponse= " + error.getMessage() );
+
+                if (error.getMessage().contains("UnknownHostException")) {
+                    Snackbar.make(rootView, "No Network", Snackbar.LENGTH_LONG).show();
+                    findViewById(R.id.tvNoNetwork).setVisibility(View.VISIBLE);
+                } else {
+                    Snackbar.make(rootView, "Error - " + error.getMessage(), Snackbar.LENGTH_LONG).show();
+                }
+
             }
         }
         );
@@ -158,29 +167,39 @@ public class MainActivity extends AppCompatActivity {
         public Void doInBackground(Void... args) {
 
             try {
-                JSONObject jsonObject = this.jsonObject.getJSONObject("photos");
-                JSONArray jsonArray = jsonObject.getJSONArray("photo");
 
-                //gson library for faster and easier serialization
-                Gson gson = new Gson();
-                Type listType = new TypeToken<List<DataModel>>() {
-                }.getType();
-                allDataList = gson.fromJson(jsonArray.toString(), listType);
-                Log.d("serData", "dataList.size=" + allDataList.size());
+                if (this.jsonObject.has("photos")) {
 
-                //no need of checking for null pointer like traditional way, it's avoided in initialization, BUT checking for empty is required
+                    JSONObject jsonObject = this.jsonObject.getJSONObject("photos");
+                    JSONArray jsonArray = jsonObject.getJSONArray("photo");
 
-                if( !allDataList.isEmpty() ) {
+                    if (jsonArray.length() > 0) {
 
-                    Snackbar.make(rootView, "Found "+allDataList.size() +" results", Snackbar.LENGTH_SHORT).show();
+                        //gson library for faster and easier serialization
+                        Gson gson = new Gson();
+                        Type listType = new TypeToken<List<DataModel>>() {
+                        }.getType();
+                        dataList = gson.fromJson(jsonArray.toString(), listType);
+                        Log.d("serData", "dataList.size=" + dataList.size());
 
-                }else{
-                    Snackbar.make(rootView, "Found no results", Snackbar.LENGTH_LONG).show();
+                        //no need of checking for null pointer like traditional way, it's avoided in initialization, BUT checking for empty is required
+
+                        if (!dataList.isEmpty()) {
+
+                            Snackbar.make(rootView, "Loading pictures", Snackbar.LENGTH_SHORT).show();
+
+                        }
+                    } else {
+                        Snackbar.make(rootView, "Found no results", Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    Snackbar.make(rootView, "Found no photos", Snackbar.LENGTH_LONG).show();
                 }
 
 
             } catch (JSONException e) {
                 e.printStackTrace();
+                Snackbar.make(rootView, "Error - " + e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
 
             return null;
@@ -190,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
         public void onPostExecute(Void result) {
             super.onPostExecute(result);
 
-            if( !allDataList.isEmpty() ) {
-                DataAdapter dataAdapter = new DataAdapter(getApplicationContext(), allDataList);
+            if (!dataList.isEmpty()) {
+                DataAdapter dataAdapter = new DataAdapter(getApplicationContext(), dataList);
                 recyclerView.setAdapter(dataAdapter);
             }
             hideLoading();
@@ -201,12 +220,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     void showLoading() {
-        infoPart.setVisibility(View.GONE);
+        infoView.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
     }
 
     void hideLoading() {
+        infoView.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
     }
@@ -217,8 +237,8 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         searchMenuItem = menu.findItem(R.id.action_search);
-        mSearchView = (SearchView) searchMenuItem.getActionView();
-        mSearchView.setOnQueryTextListener(listener);
+        searchView = (SearchView) searchMenuItem.getActionView();
+        searchView.setOnQueryTextListener(listener);
         return true;
     }
 
