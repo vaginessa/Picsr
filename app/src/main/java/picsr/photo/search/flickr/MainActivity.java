@@ -1,8 +1,12 @@
 package picsr.photo.search.flickr;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,6 +39,7 @@ import picsr.photo.search.flickr.network.VolleySingleton;
 
 public class MainActivity extends AppCompatActivity {
 
+    final int SDCARD_PERMISSION = 1;
     final String TAG = "MyLog " + this.getClass().getSimpleName();
 
     ProgressBar progressBar;
@@ -108,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        requestStoragePermission();
         requestData(Constants.URL_RECENT_UPLOADS);
     }
 
@@ -131,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideLoading();
-                Log.d(TAG, "onErrorResponse= " + error.getMessage() );
+                Log.d(TAG, "onErrorResponse= " + error.getMessage());
 
                 if (error.getMessage().contains("UnknownHostException")) {
                     Snackbar.make(rootView, "No Network", Snackbar.LENGTH_LONG).show();
@@ -240,6 +246,19 @@ public class MainActivity extends AppCompatActivity {
         searchView = (SearchView) searchMenuItem.getActionView();
         searchView.setOnQueryTextListener(listener);
         return true;
+    }
+
+    void requestStoragePermission() {
+        // For api Level 23 and above.
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    SDCARD_PERMISSION);
+
+        }
     }
 
 }
