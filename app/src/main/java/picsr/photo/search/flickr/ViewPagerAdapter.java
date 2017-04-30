@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
+import uk.co.senab.photoview.PhotoView;
+
 /**
  * Created by Kashif on 3/3/2017.
  */
@@ -61,13 +63,13 @@ public class ViewPagerAdapter extends PagerAdapter {
 
         Log.d( TAG, "URL="+dataList.get(position).constructURL() );
 
-        TouchImageView touchImageView = (TouchImageView) rootView.findViewById(R.id.tivFull);
+        PhotoView image = (PhotoView) rootView.findViewById(R.id.image);
+
         Glide.with(activity)
                 .load( dataList.get(position).constructURL() )
                 .placeholder(R.drawable.loading)
                 .error(R.drawable.error)
-                .into(touchImageView)
-        ;
+                .into(image);
 
         ImageButton shareButton = (ImageButton) rootView.findViewById(R.id.ibShare);
         shareButton.setOnClickListener(new View.OnClickListener() {
